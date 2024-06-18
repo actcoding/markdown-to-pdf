@@ -1,0 +1,146 @@
+@font-face {
+    font-family: "Inter";
+    font-weight: normal;
+
+    src: url("./fonts/Inter/static/Inter-Regular.ttf");
+}
+
+@font-face {
+    font-family: "Inter";
+    font-weight: bold;
+
+    src: url("./fonts/Inter/static/Inter-Bold.ttf");
+}
+
+@font-face {
+    font-family: "Noto Emoji";
+    font-weight: normal;
+
+    src: url("./fonts/Noto_Emoji/static/NotoEmoji-Regular.ttf");
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: #7303c0;
+}
+
+section,
+div,
+p,
+span,
+li {
+    color: #03001e;
+}
+
+body,
+.header,
+.footer {
+    font-family: "Inter", "Noto Emoji", system-ui, sans-serif;
+
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+}
+
+body {
+    font-size: 11px;
+}
+
+html,
+body {
+    max-width: 100vw;
+}
+
+img {
+    max-width: 100%;
+}
+
+body img {
+    border: 2px solid #03001e;
+}
+
+.header img {
+    margin: 0 auto;
+    height: 1.34cm;
+}
+
+.header,
+.footer {
+    width: 100%;
+    margin: 0 2.5cm;
+
+    font-size: 9px;
+    color: #f3f3f3;
+
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+}
+
+.header img,
+.footer img {
+    border: none;
+}
+
+.footer {
+    margin-bottom: .5cm;
+}
+
+.footer .footer-left {
+    text-align: start;
+}
+.footer .footer-center {
+    text-align: center;
+}
+.footer .footer-right {
+    text-align: end;
+}
+
+table {
+    table-layout: fixed;
+    width: 100%;
+    border-collapse: collapse;
+    border: 2px solid #03001e;
+}
+
+thead th:nth-child(1) {
+    width: 30%;
+}
+
+thead th:nth-child(2) {
+    width: 20%;
+}
+
+thead th:nth-child(3) {
+    width: 15%;
+}
+
+thead th:nth-child(4) {
+    width: 35%;
+}
+
+th,
+td {
+    padding: 4px;
+}
+
+.directive {
+    padding: 4px 10px 4px 10px;
+    margin: 8px 0px;
+    border-radius: 4px;
+}
+
+.directive-tip {
+    background: rgba(245, 190, 49, 0.1);
+    border-left: 4px solid rgb(245, 190, 49);
+    color: rgb(17, 19, 25);
+}
+
+.directive-warning {
+    background: rgba(215, 58, 73, 0.1);
+    border-left: 4px solid rgb(215, 58, 73);
+    color: rgb(17, 19, 25);
+}

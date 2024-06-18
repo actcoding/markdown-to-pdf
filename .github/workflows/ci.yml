@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - uses: actions/cache/restore@v4
+        id: cache
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-${{ hashFiles('bun.lockb') }}
+
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: bun install --frozen-lockfile
+
+      - uses: actions/cache/save@v4
+        if: steps.cache.outputs.cache-hit != 'true'
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-${{ hashFiles('bun.lockb') }}
+
+      - name: Build
+        run: bunx tsc
