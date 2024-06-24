@@ -4,12 +4,23 @@ import type { ServerState } from '../config'
 import { authenticate } from '../middleware/authenticate'
 import { multipart } from '../middleware/body-parser'
 import type { RouteRegistrar } from '../types'
+import prisma from '../database'
 
 interface UploadState extends ServerState {
     id: string
 }
 
 const routesUpload: RouteRegistrar = router => {
+    router.get(
+        '/upload',
+
+        authenticate(true),
+
+        async (ctx) => {
+            ctx.body = await prisma.upload.findMany()
+        }
+    )
+
     router.post<UploadState>(
         '/upload',
 
@@ -40,6 +51,11 @@ const routesUpload: RouteRegistrar = router => {
             const { markdown } = files
 
             await writeFile(`work/${ctx.state.id}/input.md`, markdown.content)
+            await prisma.upload.create({
+                data: {
+                    key: ctx.state.id,
+                }
+            })
 
             ctx.body = {
                 'id': ctx.state.id,

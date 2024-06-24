@@ -5,6 +5,7 @@ import { authenticate } from '../middleware/authenticate'
 import html from '../pdf/steps/02-generate-html'
 import pdf from '../pdf/steps/03-pdf'
 import type { Config, RouteRegistrar } from '../types'
+import prisma from '../database'
 
 const routesConvert: RouteRegistrar = router => {
     router.get(
@@ -15,15 +16,13 @@ const routesConvert: RouteRegistrar = router => {
         async (ctx) => {
             const { id } = ctx.params
 
+            await prisma.upload.findUniqueOrThrow({
+                where: {
+                    id: parseInt(id),
+                },
+            })
+
             const root = resolve(`work/${id}`)
-
-            try {
-                await stat(root)
-            } catch (error) {
-                ctx.status = 404
-                return
-            }
-
             const config: Config = {
                 inputFile: join(root, 'input.md'),
                 outputFile: join(root, 'output.pdf'),

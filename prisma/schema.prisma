@@ -15,3 +15,9 @@ model ApiKey {
   created_at DateTime @default(now())
   key        String   @unique
 }
+
+model Upload {
+  id         Int      @id @default(autoincrement())
+  created_at DateTime @default(now())
+  key        String   @unique
+}
