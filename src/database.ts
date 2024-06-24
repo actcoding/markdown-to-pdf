@@ -1,29 +1,9 @@
-import { Database } from 'bun:sqlite'
+import { PrismaClient } from '@prisma/client'
 
-const db = new Database('data.db', {
-    create: true,
-    readwrite: true,
-})
+const prisma = new PrismaClient()
 
-db.exec('PRAGMA journal_mode = WAL;')
+await prisma.$connect()
 
-process.on('beforeExit', () => db.close(false))
+// await prisma.$executeRawUnsafe('PRAGMA journal_mode = WAL;')
 
-
-type Migration = () => void
-
-const migrations: Migration[] = [
-    async () => db.exec(`
-    CREATE TABLE IF NOT EXISTS api_keys (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        key TEXT NOT NULL
-    );
-    `)
-]
-
-for (const migration of migrations) {
-    migration()
-}
-
-export default db
+export default prisma

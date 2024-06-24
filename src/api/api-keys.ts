@@ -1,15 +1,9 @@
 import { randomBytes } from 'crypto'
-import db from '../database'
-import { authenticate } from '../middleware/authenticate'
-import type { RouteRegistrar } from '../types'
 import { ZodError, z } from 'zod'
+import prisma from '../database'
+import { authenticate } from '../middleware/authenticate'
 import { bodyparser } from '../middleware/body-parser'
-
-type ApiKey = {
-    id: string
-    created_at: Date
-    key: string
-}
+import type { RouteRegistrar } from '../types'
 
 const routesApiKeys: RouteRegistrar = router => {
     router.get(
@@ -18,7 +12,7 @@ const routesApiKeys: RouteRegistrar = router => {
         authenticate(true),
 
         async (ctx) => {
-            ctx.body = db.query('SELECT * FROM api_keys').all()
+            ctx.body = await prisma.apiKey.findMany()
         }
     )
 
@@ -30,12 +24,8 @@ const routesApiKeys: RouteRegistrar = router => {
         async (ctx) => {
             const key = randomBytes(32).toString('hex')
 
-            const result = db.query<ApiKey, { $key: string }>(`
-                INSERT INTO api_keys (key)
-                VALUES ($key)
-                RETURNING id;
-            `).get({
-                $key: key,
+            const result = await prisma.apiKey.create({
+                data: { key }
             })
 
             ctx.status = 201
@@ -75,18 +65,15 @@ const routesApiKeys: RouteRegistrar = router => {
         async (ctx) => {
             const { id } = ctx.request.body!
 
-            const result = db.query<ApiKey, { $id: string }>(`
-                SELECT * FROM api_keys
-                WHERE id = $id
-            `).get({
-                $id: id,
+            const result = await prisma.apiKey.findUnique({
+                where: { id },
+                select: { id: true },
             })
 
             if (result) {
-                db.exec(`
-                    DELETE FROM api_keys
-                    WHERE id = ${id}
-                `)
+                await prisma.apiKey.delete({
+                    where: { id },
+                })
 
                 ctx.status = 200
             } else {
