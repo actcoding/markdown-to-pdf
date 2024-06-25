@@ -1,6 +1,5 @@
 import type { Middleware } from 'koa'
 import type { ServerState } from '../config'
-import prisma from '../database'
 
 export function authenticate(masterOnly: boolean = false): Middleware<ServerState> {
     return async (ctx, next) => {
@@ -12,8 +11,8 @@ export function authenticate(masterOnly: boolean = false): Middleware<ServerStat
 
         const key = header.substring(7)
 
-        const isMasterKey = key === ctx.state.config.APP_MASTER_KEY
-        const isValidApiKey = await prisma.apiKey.findUnique({
+        const isMasterKey = key === ctx.config.APP_MASTER_KEY
+        const isValidApiKey = await ctx.db.apiKey.findUnique({
             where: { key },
         })
 

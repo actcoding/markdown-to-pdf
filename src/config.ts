@@ -10,11 +10,11 @@ export const config = await configSchema.parseAsync(process.env)
 
 export type ServerConfig = typeof config
 export type ServerState = {
-    config: ServerConfig
 }
 
 export type ServerContext = {
-
+    config: ServerConfig
+    db: PrismaClient
 }
 
 export type ServerMiddleware = Middleware<ServerState, ServerContext>

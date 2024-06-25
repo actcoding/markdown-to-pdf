@@ -1,6 +1,5 @@
 import { randomBytes } from 'crypto'
 import { ZodError, z } from 'zod'
-import prisma from '../database'
 import { authenticate } from '../middleware/authenticate'
 import { bodyparser } from '../middleware/body-parser'
 import type { RouteRegistrar } from '../types'
@@ -12,7 +11,7 @@ const routesApiKeys: RouteRegistrar = router => {
         authenticate(true),
 
         async (ctx) => {
-            ctx.body = await prisma.apiKey.findMany()
+            ctx.body = await ctx.db.apiKey.findMany()
         }
     )
 
@@ -24,7 +23,7 @@ const routesApiKeys: RouteRegistrar = router => {
         async (ctx) => {
             const key = randomBytes(32).toString('hex')
 
-            const result = await prisma.apiKey.create({
+            const result = await ctx.db.apiKey.create({
                 data: { key }
             })
 
@@ -65,13 +64,13 @@ const routesApiKeys: RouteRegistrar = router => {
         async (ctx) => {
             const { id } = ctx.request.body!
 
-            const result = await prisma.apiKey.findUnique({
+            const result = await ctx.db.apiKey.findUnique({
                 where: { id },
                 select: { id: true },
             })
 
             if (result) {
-                await prisma.apiKey.delete({
+                await ctx.db.apiKey.delete({
                     where: { id },
                 })
 

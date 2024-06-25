@@ -7,6 +7,7 @@ import requestLog from './middleware/request-log'
 import routesApiKeys from './api/api-keys'
 import routesUpload from './api/upload'
 import routesConvert from './api/convert'
+import prisma from './database'
 
 const app = new Koa<ServerState, ServerContext>()
 const router = new Router<ServerState, ServerContext>()
@@ -16,7 +17,9 @@ routesUpload(router)
 routesConvert(router)
 
 app.use((ctx, next) => {
-    ctx.state.config = config
+    ctx.config = config
+    ctx.db = prisma
+
     return next()
 })
 
