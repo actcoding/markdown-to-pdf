@@ -5,24 +5,21 @@ import { authenticate } from '../middleware/authenticate'
 import html from '../pdf/steps/02-generate-html'
 import pdf from '../pdf/steps/03-pdf'
 import type { Config, RouteRegistrar } from '../types'
-import prisma from '../database'
 
 const routesConvert: RouteRegistrar = router => {
     router.get(
-        '/convert/:id',
+        '/convert/:key',
 
         authenticate(),
 
         async (ctx) => {
-            const { id } = ctx.params
+            const { key } = ctx.params
 
-            await prisma.upload.findUniqueOrThrow({
-                where: {
-                    id: parseInt(id),
-                },
+            await ctx.db.upload.findUniqueOrThrow({
+                where: { key },
             })
 
-            const root = resolve(`work/${id}`)
+            const root = resolve(`work/${key}`)
             const config: Config = {
                 inputFile: join(root, 'input.md'),
                 outputFile: join(root, 'output.pdf'),
@@ -57,7 +54,7 @@ const routesConvert: RouteRegistrar = router => {
             ctx.status = 201
 
             ctx.attachment('output.pdf')
-            ctx.set('Location', `/conversion/${id}`)
+            ctx.set('Location', `/conversion/${key}`)
             ctx.body = createReadStream(config.outputFile)
         }
     )
