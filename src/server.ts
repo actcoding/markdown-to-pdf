@@ -8,6 +8,7 @@ import routesApiKeys from './api/api-keys'
 import routesUpload from './api/upload'
 import routesConvert from './api/convert'
 import prisma from './database'
+import logger from './logger'
 
 const app = new Koa<ServerState, ServerContext>()
 const router = new Router<ServerState, ServerContext>()
@@ -28,9 +29,7 @@ app.use(router.allowedMethods())
 app.use(router.routes())
 
 export default function startServer() {
-    const port = 3000
+    app.listen(config.SERVER_PORT)
 
-    app.listen(port)
-
-    console.log(`listening on port ${port}`)
+    logger.info(`listening on port ${config.SERVER_PORT}`)
 }

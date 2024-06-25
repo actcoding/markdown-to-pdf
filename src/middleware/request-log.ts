@@ -1,16 +1,38 @@
-import type { Middleware } from 'koa'
+import dayjs from 'dayjs'
 import { nanoid } from 'nanoid'
-import type { ServerState } from '../config'
+import type { ServerMiddleware } from '../config'
+import logger from '../logger'
 
-const requestLog: Middleware<ServerState> = async function (ctx, next) {
+const requestLog: ServerMiddleware = async function (ctx, next) {
     const id = nanoid()
     ctx.set('X-Request-ID', id)
 
-    console.time(id)
+    const now = dayjs()
 
-    await next()
+    let failed = false
+    const data: Record<string, unknown> = {
+        ip: ctx.request.ip,
+        method: ctx.request.method,
+        path: ctx.request.path,
+        protocol: ctx.request.protocol,
+        params: ctx.params,
+    }
 
-    console.timeLog(id, ctx.request.ip, ctx.request.method, ctx.request.path, ctx.request.protocol, ctx.response.status)
+    try {
+        await next()
+    // @ts-expect-error I hate errors
+    } catch (error: Error) {
+        failed = true
+
+        if (error.name === 'NotFoundError') {
+            data.error = error
+        }
+    }
+
+    data.status = ctx.response.status
+    data.duration = `${dayjs().diff(now)} ms`
+
+    failed ? logger.error(data) : logger.info(data)
 }
 
 export default requestLog
