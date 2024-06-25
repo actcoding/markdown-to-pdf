@@ -179,3 +179,4 @@ input/
 output/
 work/
 output.pdf
+prisma/data.db
