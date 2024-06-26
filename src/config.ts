@@ -14,7 +14,7 @@ const configSchema = z.object({
 export const config = await configSchema.parseAsync(process.env)
 
 export type ServerConfig = typeof config
-export type ServerState = {
+export type ServerState = Record<string, unknown> & {
 }
 
 export type ServerContext = {

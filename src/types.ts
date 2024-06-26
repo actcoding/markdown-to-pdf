@@ -1,5 +1,4 @@
 import type Router from '@koa/router'
-import type { Part } from 'multiparty'
 import type { Ora } from 'ora'
 import type { UserConfig } from 'vite'
 import type { ServerContext, ServerState } from './config'

@@ -1,13 +1,8 @@
 import { mkdir, rm, writeFile } from 'fs/promises'
 import { nanoid } from 'nanoid'
-import type { ServerState } from '../config'
 import { authenticate } from '../middleware/authenticate'
 import { multipart } from '../middleware/body-parser'
 import type { RouteRegistrar } from '../types'
-
-interface UploadState extends ServerState {
-    id: string
-}
 
 const routesUpload: RouteRegistrar = router => {
     router.get(
@@ -20,7 +15,7 @@ const routesUpload: RouteRegistrar = router => {
         }
     )
 
-    router.post<UploadState>(
+    router.post(
         '/upload',
 
         authenticate(),
@@ -52,7 +47,7 @@ const routesUpload: RouteRegistrar = router => {
             await writeFile(`work/${ctx.state.id}/input.md`, markdown.content)
             await ctx.db.upload.create({
                 data: {
-                    key: ctx.state.id,
+                    key: ctx.state.id as string,
                 }
             })
 
