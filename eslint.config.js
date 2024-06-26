@@ -7,10 +7,15 @@ const config = [
     {
         languageOptions: {
             globals: globals.node,
-        }
+        },
+        files: [
+            'src/**/*'
+        ],
     },
+
     pluginJs.configs.recommended,
     ...tseslint.configs.recommended,
+
     {
         rules: {
             'indent': [

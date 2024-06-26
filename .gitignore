@@ -177,4 +177,6 @@ dist
 .puppeteer-data/
 input/
 output/
+work/
 output.pdf
+prisma/data.db

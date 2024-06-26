@@ -1,16 +1,24 @@
 import { writeFile } from 'fs/promises'
+import getPort from 'get-port'
 import { launch } from 'puppeteer'
 import { preview } from 'vite'
-import type { Step } from '../types'
+import type { Step } from '../../types'
 import buildStylesheets from '../util/css'
 import loadLogo from '../util/logo'
 
-const pdf: Step = async ({ spinner, output, vite }) => {
-    spinner.text = 'Creating PDF file'
+const pdf: Step = async ({ outputFile, spinner, vite }) => {
+    if (spinner) {
+        spinner.text = 'Creating PDF file'
+    }
 
     const css = await buildStylesheets()
 
-    const server = await preview(vite)
+    const server = await preview({
+        ...vite,
+        preview: {
+            port: await getPort()
+        }
+    })
 
     const browser = await launch({
         headless: true,
@@ -59,7 +67,7 @@ const pdf: Step = async ({ spinner, output, vite }) => {
         `,
     })
 
-    await writeFile(output, pdf)
+    await writeFile(outputFile, pdf)
 
     await browser.close()
     await server.close()

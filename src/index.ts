@@ -1,50 +1,25 @@
-import chalk from 'chalk'
-import { stat } from 'fs/promises'
-import ora from 'ora'
-import prettyBytes from 'pretty-bytes'
-import { DIRECTORY_OUTPUT } from './constants'
-import prepare from './steps/01-prepare'
-import html from './steps/02-generate-html'
-import pdf from './steps/03-pdf'
-import type { Config, Step } from './types'
+import { program } from 'commander'
 
-const spinner = ora({
-    text: 'Initializing',
-    suffixText: '…',
-}).start()
+import { version } from '../package.json'
 
-const config: Config = {
-    input: 'input/ubungen.md',
-    output: 'output.pdf',
+program.name('mdpdf')
+    .description('📄 Generates a themed PDF file from Markdown input.')
+    .version(version)
 
-    spinner,
+program.command('run')
+    .description('Convert Markdown input to a themed PDF file.')
+    .argument('<input>', 'The Markdown input file. Any referenced files (images, etc.) must be in the same directory.')
+    .argument('<output>', 'The destination file name.')
+    .action(async (input, output) => {
+        const { default: runner } = await import('./pdf/runner')
+        await runner(input, output)
+    })
 
-    vite: {
-        root: DIRECTORY_OUTPUT,
-        assetsInclude: [
-            'input/**/*'
-        ],
-        logLevel: 'warn',
-    }
-}
+program.command('server')
+    .description('Start an HTTP server for API-based conversion.')
+    .action(async () => {
+        const { default: startServer } = await import('./server')
+        startServer()
+    })
 
-const steps: Step[] = [
-    prepare,
-    html,
-    pdf,
-]
-
-try {
-    for await (const step of steps) {
-        await step(config)
-    }
-} catch (error) {
-    console.error(error)
-    spinner.fail(error instanceof Error? error.message : undefined)
-    process.exit(1)
-}
-
-const { size } = await stat(config.output)
-
-spinner.suffixText = `( ${chalk.green(prettyBytes(size))} )`
-spinner.succeed()
+program.parse()

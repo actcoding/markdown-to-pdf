@@ -10,26 +10,29 @@ import remarkGfm from 'remark-gfm'
 import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
 import { unified } from 'unified'
-import { select } from 'unist-util-select'
+import type { Literal } from 'unist'
 import { build } from 'vite'
+import { DIRECTORY_RESOURCES } from '../../constants'
+import type { Step } from '../../types'
+import { select } from '../../util/select'
 import { DirectiveTip, DirectiveWarning } from '../components/Directive'
-import { DIRECTORY_OUTPUT, DIRECTORY_RESOURCES } from '../constants'
-import type { Step } from '../types'
 import remarkImgLinks from '../unified/remarkImgLinks'
 import buildStylesheets from '../util/css'
 import buildTree from '../util/tree'
 
-const html: Step = async ({ spinner, input, vite }) => {
-    spinner.text = 'Generating static website'
+const html: Step = async ({ inputFile, workingDirectory, spinner, vite }) => {
+    if (spinner) {
+        spinner.text = 'Generating static website'
+    }
 
-    const tree = await buildTree(input)
+    const tree = await buildTree(inputFile)
     const css = await buildStylesheets()
 
     const result = await unified()
         .use(remarkParse)
         .use(remarkImgLinks, {
-            source: dirname(input),
-            destination: DIRECTORY_OUTPUT,
+            source: dirname(inputFile),
+            destination: workingDirectory,
         })
         .use(remarkGfm)
         .use(remarkDirective)
@@ -43,7 +46,7 @@ const html: Step = async ({ spinner, input, vite }) => {
         })
         .use(rehypeDocument, {
             dir: 'ltr',
-            title: select('text', tree)?.value,
+            title: select<Literal>('text', tree)?.value as string,
             css: css.map(el => el.file),
             link: [
                 {
@@ -56,10 +59,10 @@ const html: Step = async ({ spinner, input, vite }) => {
             indent: 4,
         })
         .use(rehypeStringify)
-        .process(await readFile(input))
+        .process(await readFile(inputFile))
 
-    await writeFile(resolve(DIRECTORY_OUTPUT, 'index.html'), result.value)
-    await cp(DIRECTORY_RESOURCES, DIRECTORY_OUTPUT, { recursive: true })
+    await writeFile(resolve(workingDirectory, 'index.html'), result.value)
+    await cp(DIRECTORY_RESOURCES, workingDirectory, { recursive: true })
     await build(vite)
 }
 
